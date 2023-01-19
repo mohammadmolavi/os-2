@@ -13,46 +13,53 @@ class LockOwner(enum.Enum):
 
 class ProtectedValue:
     def __init__(self, value):
-        self.value = value
-        self.lock = LockOwner.none
+        self.__value = value
+        self.__lock = LockOwner.none
 
     def get_lock(self, lock_owner):
-        while self.lock != LockOwner.none:
+        while self.__lock != LockOwner.none:
             pass
         lock = lock_owner
         return
 
+    def get_value(self):
+        return self.__value
+
+    def set_value(self, lock_owner):
+        if self.__lock == lock_owner:
+            return self.__value
+
     def release_lock(self, lock_owner):
-        if self.lock == lock_owner:
-            self.lock = LockOwner.none
+        if self.__lock == lock_owner:
+            self.__lock = LockOwner.none
         else:
             return
 
 
-def add(num, value):
+def add(protected_num : ProtectedValue, const):
     tmp = 0
     while True:
-        value.get_lock(LockOwner.add)
-        print('add')
-        num.value += value
-        tmp = num.value
+        const.get_lock(LockOwner.add)
+        print(LockOwner.add)
+        protected_num.set_value(protected_num.get_value() + const)
+        tmp = protected_num.get_value()
         sleep(1)
-        if tmp != num.value:
+        if tmp != protected_num.get_value():
             print("Process conflict")
-        value.release_lock(LockOwner.add)
+        const.release_lock(LockOwner.add)
 
 
-def sub(num, value):
+def sub(protected_num : ProtectedValue, const):
     tmp = 0
     while True:
-        value.get_lock(LockOwner.sub)
-        print('sub')
-        num.value += value
-        tmp = num.value
+        protected_num.get_lock(LockOwner.sub)
+        print(LockOwner.sub)
+        protected_num.set_value(protected_num.get_value() - const)
+        tmp = protected_num.value
         sleep(1.5)
-        if tmp != num.value:
+        if tmp != protected_num.value:
             print("Process conflict")
-        value.release_lock(LockOwner.sub)
+        const.release_lock(LockOwner.sub)
 
 
 def mul(num, value):
