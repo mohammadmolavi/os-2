@@ -75,15 +75,15 @@ def mul(num, value):
         value.release_lock(LockOwner.mul)
 
 
-def div(num, value):
+def div(protected_num : ProtectedValue, const):
     tmp = 0
     while True:
         num.get_lock(LockOwner.div)
         print('div')
-        num.value /= value
-        tmp = num.value
+        protected_num.set_value(protected_num.get_value() / const)
+        tmp = protected_num.get_value()
         sleep(3)
-        if tmp != num.value:
+        if tmp != num.get_value():
             print("Process conflict")
         num.release_lock(LockOwner.div)
 
