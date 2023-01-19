@@ -55,9 +55,9 @@ def sub(protected_num : ProtectedValue, const):
         protected_num.get_lock(LockOwner.sub)
         print(LockOwner.sub)
         protected_num.set_value(protected_num.get_value() - const)
-        tmp = protected_num.value
+        tmp = protected_num.get_value()
         sleep(1.5)
-        if tmp != protected_num.value:
+        if tmp != protected_num.get_value():
             print("Process conflict")
         const.release_lock(LockOwner.sub)
 
