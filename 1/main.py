@@ -19,15 +19,15 @@ class ProtectedValue:
     def get_lock(self, lock_owner):
         while self.__lock != LockOwner.none:
             pass
-        lock = lock_owner
+        self.__lock = lock_owner
         return
 
     def get_value(self):
         return self.__value
 
-    def set_value(self, lock_owner):
-        if self.__lock == lock_owner:
-            return self.__value
+    def set_value(self, newValue):
+        self.__value = newValue
+        return self.__value
 
     def release_lock(self, lock_owner):
         if self.__lock == lock_owner:
@@ -39,14 +39,15 @@ class ProtectedValue:
 def add(protected_num : ProtectedValue, const):
     tmp = 0
     while True:
-        const.get_lock(LockOwner.add)
+        protected_num.get_lock(LockOwner.add)
         print(LockOwner.add)
         protected_num.set_value(protected_num.get_value() + const)
         tmp = protected_num.get_value()
         sleep(1)
+        #print(tmp)
         if tmp != protected_num.get_value():
             print("Process conflict")
-        const.release_lock(LockOwner.add)
+        protected_num.release_lock(LockOwner.add)
 
 
 def sub(protected_num : ProtectedValue, const):
@@ -56,50 +57,53 @@ def sub(protected_num : ProtectedValue, const):
         print(LockOwner.sub)
         protected_num.set_value(protected_num.get_value() - const)
         tmp = protected_num.get_value()
+        #print(tmp)
         sleep(1.5)
         if tmp != protected_num.get_value():
             print("Process conflict")
-        const.release_lock(LockOwner.sub)
+        protected_num.release_lock(LockOwner.sub)
 
 
-def mul(num, value):
+def mul(protected_num : ProtectedValue, const):
     tmp = 0
     while True:
-        value.get_lock(LockOwner.mul)
-        print('mul')
-        num.value *= value
-        tmp = num.value
+        protected_num.get_lock(LockOwner.mul)
+        print(LockOwner.mul)
+        protected_num.set_value(protected_num.get_value() * const)
+        tmp = protected_num.get_value()
+        #print(tmp)
         sleep(2)
-        if tmp != num.value:
+        if tmp != protected_num.get_value():
             print("Process conflict")
-        value.release_lock(LockOwner.mul)
+        protected_num.release_lock(LockOwner.mul)
 
 
 def div(protected_num : ProtectedValue, const):
     tmp = 0
     while True:
-        num.get_lock(LockOwner.div)
-        print('div')
+        protected_num.get_lock(LockOwner.div)
+        print(LockOwner.div)
         protected_num.set_value(protected_num.get_value() / const)
         tmp = protected_num.get_value()
+        #print(tmp)
         sleep(3)
-        if tmp != num.get_value():
+        if tmp != protected_num.get_value():
             print("Process conflict")
-        num.release_lock(LockOwner.div)
+        protected_num.release_lock(LockOwner.div)
 
 
-def Show(num):
+def Show(num : ProtectedValue):
     while True:
         sleep(0.5)
-        print(num.value)
+        print(num.get_value())
 
 
 if __name__ == '__main__':
     num = ProtectedValue(0.0)
     p1 = Process(target=add, args=(num, 10))
     p2 = Process(target=sub, args=(num, 5))
-    p3 = Process(target=add, args=(num, 2))
-    p4 = Process(target=sub, args=(num, 4))
+    p3 = Process(target=mul, args=(num, 2))
+    p4 = Process(target=div, args=(num, 4))
 
     show = Process(target=Show, args=(num,))
     show.start()
