@@ -1,111 +1,91 @@
 import enum
-from multiprocessing import Process, Value, Array, Queue
+from multiprocessing import Value, Array, Queue,Process
 from time import sleep
 
+class PID(enum.Enum):
+    add = 0
+    sub = 1
+    mul = 2
+    div = 3
 
-class LockOwner(enum.Enum):
-    none = 'none'
-    add = 'add'
-    sub = 'sub'
-    mul = 'mul'
-    div = 'div'
+class Locker:
+    def __init__(self):
+        self.queue = Queue(maxsize=1)
 
+    def lock(self, pid : PID):
+        self.queue.put(pid)
 
-class ProtectedValue:
-    def __init__(self, value):
-        self.__value = value
-        self.__lock = LockOwner.none
+    def unlock(self, pid : PID):
+        q_id = self.queue.get(False)
+        if q_id != pid:
+            raise Exception('not equal with whats in queue')
 
-    def get_lock(self, lock_owner):
-        while self.__lock != LockOwner.none:
-            pass
-        self.__lock = lock_owner
-        return
-
-    def get_value(self):
-        return self.__value
-
-    def set_value(self, newValue):
-        self.__value = newValue
-        return self.__value
-
-    def release_lock(self, lock_owner):
-        if self.__lock == lock_owner:
-            self.__lock = LockOwner.none
-        else:
-            return
-
-
-def add(protected_num : ProtectedValue, const):
+def add(num, value):
     tmp = 0
     while True:
-        protected_num.get_lock(LockOwner.add)
-        print(LockOwner.add)
-        protected_num.set_value(protected_num.get_value() + const)
-        tmp = protected_num.get_value()
+        locker.lock(PID.add)
+        print('add', value)
+        num.value += value
+        tmp = num.value
         sleep(1)
-        #print(tmp)
-        if tmp != protected_num.get_value():
+        if tmp != num.value:
             print("Process conflict")
-        protected_num.release_lock(LockOwner.add)
+        locker.unlock(PID.add)
 
 
-def sub(protected_num : ProtectedValue, const):
+def sub(num, value):
     tmp = 0
     while True:
-        protected_num.get_lock(LockOwner.sub)
-        print(LockOwner.sub)
-        protected_num.set_value(protected_num.get_value() - const)
-        tmp = protected_num.get_value()
-        #print(tmp)
+        locker.lock(PID.sub)
+        print('sub', value)
+        num.value -= value
+        tmp = num.value
         sleep(1.5)
-        if tmp != protected_num.get_value():
+        if tmp != num.value:
             print("Process conflict")
-        protected_num.release_lock(LockOwner.sub)
+        locker.unlock(PID.sub)
 
-
-def mul(protected_num : ProtectedValue, const):
+def mul(num, value):
     tmp = 0
     while True:
-        protected_num.get_lock(LockOwner.mul)
-        print(LockOwner.mul)
-        protected_num.set_value(protected_num.get_value() * const)
-        tmp = protected_num.get_value()
-        #print(tmp)
+        locker.lock(PID.mul)
+        print('mul', value)
+        num.value *= value
+        tmp = num.value
         sleep(2)
-        if tmp != protected_num.get_value():
+        if tmp != num.value:
             print("Process conflict")
-        protected_num.release_lock(LockOwner.mul)
+        locker.unlock(PID.mul)
 
-
-def div(protected_num : ProtectedValue, const):
+def div(num, value):
     tmp = 0
     while True:
-        protected_num.get_lock(LockOwner.div)
-        print(LockOwner.div)
-        protected_num.set_value(protected_num.get_value() / const)
-        tmp = protected_num.get_value()
-        #print(tmp)
+        locker.lock(PID.div)
+        print('div', value)
+        num.value /= value
+        tmp = num.value
         sleep(3)
-        if tmp != protected_num.get_value():
+        if tmp != num.value:
             print("Process conflict")
-        protected_num.release_lock(LockOwner.div)
+        locker.unlock(PID.div)
 
 
-def Show(num : ProtectedValue):
+def Show(num):
     while True:
         sleep(0.5)
-        print(num.get_value())
+        print(num.value)
+
 
 
 if __name__ == '__main__':
-    num = ProtectedValue(0.0)
-    p1 = Process(target=add, args=(num, 10))
-    p2 = Process(target=sub, args=(num, 5))
-    p3 = Process(target=mul, args=(num, 2))
-    p4 = Process(target=div, args=(num, 4))
+    global_num = Value('d', 0.0)
+    locker = Locker()
+    p1 = Process(target=add, args=(global_num, 10))
+    p2 = Process(target=sub, args=(global_num, 5))
+    p3 = Process(target=add, args=(global_num, 2))
+    p4 = Process(target=sub, args=(global_num, 4))
 
-    show = Process(target=Show, args=(num,))
+    show = Process(target=Show, args=(global_num,))
     show.start()
     sleep(1)
     p1.start()
