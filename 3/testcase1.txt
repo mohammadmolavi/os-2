@@ -1,0 +1,9 @@
+1
+A 5
+var1 4
+var2 8
+var3 240
+var4 148
+var5 300
+A var1
+A var5
