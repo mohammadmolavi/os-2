@@ -1,32 +1,32 @@
-from process import process
+from process import Process
 INPUT_FILE = './testcase1.txt'
-def main():
 
+def main():
     file = open(INPUT_FILE, 'r')
 
-    cmd_args = file.readline().split()
-    processCount = cmd_args
+    input_line = file.readline().split()
+    process_count = int(input_line[0])
 
 
-    for process in processCount:
-        cmd_args = file.readline().split()
-        processName = cmd_args[0]
-        varCount = int(cmd_args[1])
-        varDic = {}
-        for var in range(varCount):
-            cmd_args = file.readline().split()
-            print(cmd_args)
-            varDic[cmd_args[0]] = int(cmd_args[1])
+    for _ in range(process_count):
+        input_line = file.readline().split()
+        process_name = input_line[0]
+        var_count = int(input_line[1])
+        var_dic = {}
+        for var in range(var_count):
+            input_line = file.readline().split()
+            print(input_line)
+            var_dic[input_line[0]] = int(input_line[1])
 
-        processDic = {}
-        proc = process(varDic)
-        processDic[processName] = proc
-
+        process_dic = {}
+        proc = Process(var_dic)
+        process_dic[process_name] = proc
+        print()
     #recv requests
-    cmd_args = file.readline().split()
-    while(cmd_args):
-        print(cmd_args)
-        cmd_args = file.readline().split()
+    input_line = file.readline().split()
+    while(input_line):
+        print(input_line)
+        input_line = file.readline().split()
 
 
 if __name__ == '__main__':
