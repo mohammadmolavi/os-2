@@ -1,0 +1,25 @@
+3
+A 5
+var1 4
+var2 8
+var3 240
+var4 148
+var5 300
+B 5
+var1 4
+var2 8
+var3 240
+var4 200
+var5 300
+C 5
+var1 4
+var2 8
+var3 240
+var4 148
+var5 300
+A var2
+A var5
+B var2
+B var4
+C var2
+C var5

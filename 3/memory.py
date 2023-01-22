@@ -13,25 +13,27 @@ class Memory:
     def allocate(self , page: Page):
         create_time = float(time.time())
         flag = False
-        for entry in self.__storage:
-            if not entry[0]:
-                entry=([False , page , create_time])
+
+        for i in range(len(self.__storage)):
+            if self.__storage[i][0]:
                 flag = True
                 break
         if not flag:
             self.FIFO_unallocate()
-            self.allocate(page)
 
         for i in range(len(self.__storage)):
-            if self.__storage[i][1] == page:
+            if self.__storage[i][0]:
+                self.__storage[i] = ([False, page, create_time])
+                page.is_present = True
                 return i
 
     def FIFO_unallocate(self):
+        print('page f')
         oldest = 0
         for i in range(len(self.__storage)):
             if self.__storage[i][2] < self.__storage[oldest][2]:
                 oldest = i
-        self.__storage[oldest][2] = True
+        self.__storage[oldest][0] = True
 
 
     def find_page(self , page: Page):

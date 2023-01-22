@@ -4,7 +4,7 @@ from variable import Variable
 from memory import Memory
 
 INPUT_FILE = './testcase1.txt'
-main_memory = Memory(4000)
+main_memory = Memory(400)
 process_dic = {}
 
 def main():
@@ -55,10 +55,11 @@ def response(proc_id, var_id):
         return
 
     if not tar_page.is_present:
-        main_memory.allocate(tar_page)
+        tar_page.memory_address = main_memory.allocate(tar_page)
 
     print('Logical: Page {} offset {}'.format(tar_page.page_number, tar_var.get_offset()))
     print('Physical: frame {} offset {}'.format(tar_page.memory_address, tar_var.get_offset()))
+    print('relative: {}'.format(tar_page.page_number * 400 + tar_var.get_offset()))
 
 if __name__ == '__main__':
     main()
